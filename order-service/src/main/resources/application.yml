@@ -1,0 +1,23 @@
+spring:
+  jpa:
+    properties:
+      hibernate.physical_naming_strategy: com.acme.micro.order.common.TblSufixSpringPhysicalNamingStrategyImpl
+
+logging:
+  level:
+    root: debug
+
+server:
+  port: 18080
+
+management:
+  endpoint:
+    hystrix:
+      stream:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'
+    enabled-by-default: true

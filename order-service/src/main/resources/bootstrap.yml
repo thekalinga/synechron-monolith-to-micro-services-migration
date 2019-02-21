@@ -1,0 +1,8 @@
+spring:
+  application:
+    name: order-service
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 1
+  client:
+    eureka-service-url-poll-interval-seconds: 1

@@ -1,0 +1,7 @@
+spring:
+  jpa:
+    properties:
+      hibernate.physical_naming_strategy: com.acme.micro.inventory.common.TblSufixSpringPhysicalNamingStrategyImpl
+
+server:
+  port: 28080

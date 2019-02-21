@@ -1,0 +1,42 @@
+eureka:
+  server:
+    response-cache-auto-expiration-in-seconds: 6
+    response-cache-update-interval-ms: 1000
+---
+spring:
+  application:
+    name: service-registry
+server:
+  port: 8761
+eureka:
+  instance:
+    hostname: localhost
+  client:
+    register-with-eureka: false
+    fetch-registry: false
+---
+spring:
+  profiles: service-registry1
+  application:
+    name: service-registry
+server:
+  port: 8761
+eureka:
+  instance:
+    hostname: service-registry1
+  client:
+    service-url:
+      defaultZone: http://service-registry2:8762/eureka
+---
+spring:
+  profiles: service-registry2
+  application:
+    name: service-registry
+server:
+  port: 8762
+eureka:
+  instance:
+    hostname: service-registry2
+  client:
+    service-url:
+      defaultZone: http://service-registry1:8761/eureka

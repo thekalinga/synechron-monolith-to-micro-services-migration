@@ -1,0 +1,11 @@
+buildscript {
+  dependencies {
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.'spring-boot.version'}"
+  }
+}
+
+apply plugin: "org.springframework.boot"
+
+dependencies {
+  implementation 'org.springframework.cloud:spring-cloud-starter'
+}

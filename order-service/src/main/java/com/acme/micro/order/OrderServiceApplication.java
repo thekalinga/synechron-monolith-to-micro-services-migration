@@ -15,3 +15,24 @@ public class OrderServiceApplication {
     SpringApplication.run(OrderServiceApplication.class);
   }
 }
+
+
+//@Configuration
+//@Log4j2
+//class ConfigEvaluator {
+//  public ConfigEvaluator(@Value("${custom.property}") int value) {
+//    log.debug("Retried the custom value of {}", value);
+//  }
+
+//  @Bean
+//  @RefreshScope
+//  CustomBean customBean() {
+//    return CustomB
+//  }
+//}
+
+
+//@ConfigurationProperties()
+//class CustomBean {
+//
+//}

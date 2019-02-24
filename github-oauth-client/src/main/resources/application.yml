@@ -1,0 +1,16 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+#          keycloak:
+#            client-id: spring-security
+#            client-secret: bfbd9f62-02ce-4638-a370-80d45514bd0a
+          github:
+            client-id: 09ead846de0a6540a0da
+            client-secret: 6fe8360d7b065c42088c1929d54eea34e3589acd
+#        provider:
+#          keycloak:
+#            issuer-uri: http://idp:9999/auth/realms/demo/
+server:
+  port: 8090

@@ -1,12 +1,8 @@
 package com.acme.micro.order.service;
 
-import com.acme.micro.order.service.dto.ExpiringInventoryLeaseResponse;
-
-import java.net.MalformedURLException;
-import java.net.URISyntaxException;
+import com.acme.common.order.inventory.ExpiringInventoryLeaseRestResponse;
 
 public interface InventoryProxyRestTemplateService {
-  ExpiringInventoryLeaseResponse getExpiringLeaseForOrder(int orderId, String productCode, int quantity);
-  boolean confirmAcquire(int leaseId);
-  boolean cancelLease(int leaseId);
+  ExpiringInventoryLeaseRestResponse getExpiringLeaseForOrder(int orderId, String productCode, int quantity);
+  boolean cancelLease();
 }

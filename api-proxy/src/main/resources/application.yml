@@ -1,0 +1,34 @@
+zuul:
+  ignored-services: '*'
+  routes:
+    order-service:
+        serviceId: order-service
+        path: /order-service/**
+
+hystrix:
+  order-service:
+    execution:
+      isolation:
+        thread:
+          timeoutInMilliseconds: 30000
+spring:
+  sleuth:
+    sampler:
+      probability: 1
+    log:
+      slf4j:
+        enabled: false
+  zipkin:
+    sender:
+      type: WEB
+
+management:
+  endpoint:
+    hystrix:
+      stream:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'

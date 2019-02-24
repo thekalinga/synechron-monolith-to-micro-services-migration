@@ -1,0 +1,25 @@
+filebeat:
+  prospectors:
+    -
+      document_type: api-proxy
+      paths:
+        - /var/log/api-proxy.log
+      multiline:
+        pattern: "^[0-9]+"
+        negate: true
+        match: after
+      fields:
+        service: api-proxy
+      fields_under_root: true
+output:
+  logstash:
+    enabled: true
+    hosts:
+      - elk:5044
+    timeout: 15
+#    ssl:
+#      insecure: true
+#      enabled: true
+#      certificate_authoritites:
+#        - /etc/pki/tls/certs/logstash.crt
+# https://discuss.elastic.co/t/tls-connection-failed-because-of-certificate-signed-by-unknown-authority/57064/15

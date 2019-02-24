@@ -1,10 +1,20 @@
 spring:
+  application:
+    name: configserver
   cloud:
     config:
       server:
         git:
           uri: https://github.com/thekalinga/synechron-config-repo
+
 server:
   port: 8888
 
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 1
+  client:
+    eureka-service-url-poll-interval-seconds: 1
+
 # Refer to source of org.springframework.cloud.config.server.resource.ResourceController to know about the urls to access
+

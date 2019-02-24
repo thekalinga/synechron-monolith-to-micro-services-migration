@@ -1,5 +1,6 @@
-package com.acme.micro.inventory.resource.dto;
+package com.acme.micro.order.resource.contract;
 
+import com.acme.micro.order.domain.OrderStatus;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
@@ -7,17 +8,15 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ExpiringInventoryLeaseResponse {
-  private boolean leaseAcquired;
-  private int leaseId;
+public class OrderResponse {
+  private int id;
   private String productName;
-  private LocalDateTime leaseValidTill;
+  private int quantity;
+  private OrderStatus status;
 }

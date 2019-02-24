@@ -1,0 +1,27 @@
+import com.bmuschko.gradle.docker.tasks.image.DockerBuildImage
+
+buildscript {
+  repositories {
+    mavenLocal()
+    mavenCentral()
+    jcenter()
+  }
+  dependencies {
+    classpath "com.bmuschko:gradle-docker-plugin:4.5.0"
+  }
+}
+
+apply plugin: com.bmuschko.gradle.docker.DockerRemoteApiPlugin
+
+docker {
+  url = 'unix:///var/run/docker.sock'
+// For windows
+//  url = 'tcp://127.0.0.1:2375'
+}
+
+task buildDockerImage(type: DockerBuildImage) {
+  dependsOn build
+  inputDir = file('.')
+  dockerFile = file('src/docker/Dockerfile')
+  tags = ["${project.group}/${project.name}:${project.version}"]
+}

@@ -1,7 +1,7 @@
 package com.acme.micro.order.resource;
 
-import com.acme.micro.order.resource.dto.OrderRequest;
-import com.acme.micro.order.resource.dto.OrderResponse;
+import com.acme.micro.order.resource.contract.OrderRequest;
+import com.acme.micro.order.resource.contract.OrderResponse;
 import com.acme.micro.order.service.OrderService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -13,6 +13,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
 import java.util.List;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping
@@ -26,7 +27,11 @@ public class OrderResource {
 
   @GetMapping
   List<OrderResponse> listOrders() {
+    if (ThreadLocalRandom.current().nextInt(1, 10) > 3) {
       return service.getAllOrders();
+    } else {
+      throw new RuntimeException("Intentionally throwing exceptions");
+    }
   }
 
   @GetMapping("/{id}")

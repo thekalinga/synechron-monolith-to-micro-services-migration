@@ -5,15 +5,41 @@ buildscript {
 }
 
 apply plugin: "org.springframework.boot"
+apply from: 'docker.gradle'
 
 dependencies {
-  implementation 'org.springframework.cloud:spring-cloud-starter-config'
+  implementation project(':order-command-event-common')
+
   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+  // Rfer to this, Not sure why we need this. Raise an issue with spring guys that the server startup fails when eurek client/ribbo+kafka streams is used
+  // https://stackoverflow.com/a/20258438/211794
+  implementation 'org.glassfish.jersey.core:jersey-common:2.28'
+
+//  implementation 'org.springframework.cloud:spring-cloud-starter-config'
   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon'
   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
   implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
   implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+  implementation 'org.apache.kafka:kafka-streams'
+  implementation 'org.springframework.cloud:spring-cloud-stream'
+  implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka'
+  implementation 'org.springframework.cloud:spring-cloud-stream-binder-kafka-streams'
+  implementation 'org.springframework.kafka:spring-kafka'
+
+  implementation 'org.springframework.cloud:spring-cloud-starter-sleuth'
+  implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
+
   implementation 'org.springframework.boot:spring-boot-starter-web'
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   runtimeOnly 'com.h2database:h2'
 }
+
+//configurations {
+//  all {
+//    exclude group: 'javax.ws.rs', module: 'jsr311-api'
+////    exclude group: 'com.sun.jersey', module: 'jersey-client'
+////    exclude group: 'com.sun.jersey', module: 'jersey-core'
+////    exclude group: 'com.sun.jersey.contribs', module: 'jersey-apache-client4'
+//  }
+//}

@@ -1,15 +1,11 @@
 package com.acme.micro.order.service;
 
-import com.acme.micro.order.service.dto.ExpiringInventoryLeaseRequest;
-import com.acme.micro.order.service.dto.ExpiringInventoryLeaseResponse;
-import com.acme.micro.order.service.dto.IdContainer;
-import com.acme.micro.order.service.dto.InventoryAcquireConfirmationResponse;
+import com.acme.common.order.inventory.ExpiringInventoryLeaseRestRequest;
+import com.acme.common.order.inventory.ExpiringInventoryLeaseRestResponse;
+import com.acme.common.order.inventory.LeaseAcquisitionStatus;
+import com.acme.micro.order.client.InventoryLeaseCancellationClient;
 import com.netflix.hystrix.contrib.javanica.annotation.HystrixCommand;
-import org.springframework.cloud.client.ServiceInstance;
-import org.springframework.cloud.client.discovery.DiscoveryClient;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerClient;
-import org.springframework.cloud.client.loadbalancer.LoadBalancerRequest;
-import org.springframework.context.annotation.Bean;
+import lombok.extern.log4j.Log4j2;
 import org.springframework.core.ParameterizedTypeReference;
 import org.springframework.http.RequestEntity;
 import org.springframework.stereotype.Service;
@@ -17,64 +13,41 @@ import org.springframework.web.client.RestTemplate;
 import org.springframework.web.util.UriComponentsBuilder;
 
 import java.net.URI;
-import java.util.List;
-import java.util.Objects;
 
+import static com.acme.common.order.inventory.LeaseAcquisitionStatus.unknown_error;
 import static org.springframework.http.HttpMethod.POST;
 
+@Log4j2
 @Service
 public class InventoryProxyRestTemplateServiceImpl implements InventoryProxyRestTemplateService {
   private final RestTemplate restTemplate;
-  private final DiscoveryClient discoveryClient;
   private final InventoryLeaseCancellationClient leaseCancellationClient;
-  private final LoadBalancerClient loadBalancerClient;
 
-  public InventoryProxyRestTemplateServiceImpl(RestTemplate restTemplate, DiscoveryClient discoveryClient, InventoryLeaseCancellationClient leaseCancellationClient, LoadBalancerClient loadBalancerClient) {
+  @SuppressWarnings("unused")
+  public InventoryProxyRestTemplateServiceImpl(RestTemplate restTemplate, InventoryLeaseCancellationClient leaseCancellationClient) {
     this.restTemplate = restTemplate;
-    this.discoveryClient = discoveryClient;
     this.leaseCancellationClient = leaseCancellationClient;
-    this.loadBalancerClient = loadBalancerClient;
   }
 
   @Override
   @HystrixCommand(fallbackMethod = "fallbackForErroringExpiringLeaseForOrder")
-  public ExpiringInventoryLeaseResponse getExpiringLeaseForOrder(int orderId,
-      String productCode, int quantity) {
-    ExpiringInventoryLeaseRequest request =
-        ExpiringInventoryLeaseRequest.builder().orderId(orderId).productCode(productCode)
-            .quantity(quantity).build();
+  public ExpiringInventoryLeaseRestResponse getExpiringLeaseForOrder(int orderId, String productCode, int quantity) {
+    log.debug("Will be requesting expiring lease for a quantity of {} for order {} & product code {}", quantity, orderId, productCode);
+    ExpiringInventoryLeaseRestRequest request = ExpiringInventoryLeaseRestRequest.builder().orderId(orderId).productCode(productCode).quantity(quantity).build();
     URI uri = UriComponentsBuilder.fromHttpUrl("http://inventory-service/acquireExpiringLease").build().toUri();
-    RequestEntity<ExpiringInventoryLeaseRequest> requestEntity = new RequestEntity<>(request, POST, uri);
-    return restTemplate.exchange(requestEntity, new ParameterizedTypeReference<ExpiringInventoryLeaseResponse>() {}).getBody();
+    RequestEntity<ExpiringInventoryLeaseRestRequest> requestEntity = new RequestEntity<>(request, POST, uri);
+    return restTemplate.exchange(requestEntity, new ParameterizedTypeReference<ExpiringInventoryLeaseRestResponse>() {}).getBody();
   }
 
   // Since we want to mark tx as cancelled, lets just do that
-  public ExpiringInventoryLeaseResponse fallbackForErroringExpiringLeaseForOrder(int orderId, String productCode, int quantity, Throwable e) {
-    return ExpiringInventoryLeaseResponse.builder().leaseAcquired(false).build();
+  public ExpiringInventoryLeaseRestResponse fallbackForErroringExpiringLeaseForOrder(int orderId, String productCode, int quantity, Throwable e) {
+    log.debug("Returing to fallback due to error", e);
+    return ExpiringInventoryLeaseRestResponse.builder().status(unknown_error).build();
   }
 
   @Override
-  public boolean confirmAcquire(int leaseId) {
-    List<ServiceInstance> instances = discoveryClient.getInstances("inventory-service");
-//    loadBalancerClient.execute("inventory-service", new LoadBalancerRequest<IdContainer>() {
-//      @Override
-//      public IdContainer apply(ServiceInstance instance) throws Exception {
-//        return instance.;
-//      }
-//    })
-    if (instances.size() > 0) {
-      ServiceInstance serviceInstance = instances.get(0);
-      URI uri = UriComponentsBuilder.fromUri(serviceInstance.getUri()).path("confirmAcquire").build().toUri();
-      RestTemplate restTemplate = new RestTemplate();
-      IdContainer idContainer = IdContainer.builder().id(leaseId).build();
-      RequestEntity<IdContainer> requestEntity = new RequestEntity<>(idContainer, POST, uri);
-      return Objects.requireNonNull(restTemplate.exchange(requestEntity, new ParameterizedTypeReference<InventoryAcquireConfirmationResponse>() {}).getBody()).isAcquired();
-    }
-    return false;
-  }
-
-  @Override
-  public boolean cancelLease(int leaseId) {
-    return leaseCancellationClient.cancel(leaseId).isCancelled();
+  public boolean cancelLease() {
+    log.debug("Will be requesting cancelling lease");
+    return leaseCancellationClient.cancel().isCancelled();
   }
 }

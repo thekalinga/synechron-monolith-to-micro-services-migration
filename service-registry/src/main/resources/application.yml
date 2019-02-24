@@ -1,14 +1,12 @@
-eureka:
-  server:
-    response-cache-auto-expiration-in-seconds: 6
-    response-cache-update-interval-ms: 1000
----
 spring:
   application:
     name: service-registry
 server:
   port: 8761
 eureka:
+  server:
+    response-cache-auto-expiration-in-seconds: 6
+    response-cache-update-interval-ms: 1000
   instance:
     hostname: localhost
   client:

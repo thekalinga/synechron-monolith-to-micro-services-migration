@@ -39,5 +39,6 @@ public class Order {
   private int quantity;
   @Enumerated(STRING)
   private OrderStatus status;
+  private int leaseId;
   private LocalDateTime leaseValidTill;
 }

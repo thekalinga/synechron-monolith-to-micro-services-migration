@@ -1,7 +1,53 @@
+server:
+  port: 28080
+
 spring:
   jpa:
     properties:
-      hibernate.physical_naming_strategy: com.acme.micro.inventory.common.TblSufixSpringPhysicalNamingStrategyImpl
+      hibernate:
+        show_sql: true
+        format_sql: true
+        physical_naming_strategy: com.acme.micro.inventory.common.TblSufixSpringPhysicalNamingStrategyImpl
 
-server:
-  port: 28080
+  # kafka + stream configuration
+  cloud:
+    stream:
+      bindings:
+        lease_confirmation_request:
+          contentType: application/json
+          consumer:
+            headerMode: raw
+#            useNativeDecoding: true
+        lease_confirmation_response:
+          contentType: application/json
+          producer:
+            headerMode: raw
+            partitionKeyExpression: payload.leaseId
+#            useNativeEncoding: true
+      kafka:
+        streams:
+          binder:
+            configuration:
+              default:
+                key.serde: org.apache.kafka.common.serialization.Serdes$IntegerSerde
+#                value.serde: org.apache.kafka.common.serialization.Serdes$StringSerde
+              commit.interval.ms: 1000
+
+  # Sleuth
+  sleuth:
+    sampler:
+      probability: 1 # Sample every request
+    log:
+      slf4j:
+        enabled: false
+  # Zipkin exporter
+  zipkin:
+    sender:
+      type: WEB # KafkaStreamsStreamListenerSetupMethodOrchestrator.end it via http
+
+logging:
+  level:
+    root: warn
+    sql: debug
+    com:
+      acme: debug

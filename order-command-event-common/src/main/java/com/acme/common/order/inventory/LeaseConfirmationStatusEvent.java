@@ -1,4 +1,4 @@
-package com.acme.micro.order.service.dto;
+package com.acme.common.order.inventory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -7,16 +7,13 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import lombok.ToString;
 
-import java.time.LocalDateTime;
-
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 @ToString
-public class ExpiringInventoryLeaseRequest {
-  private int orderId;
-  private String productCode;
-  private int quantity;
+public class LeaseConfirmationStatusEvent {
+  private int leaseId;
+  private LeaseConfirmationStatus confirmationStatus;
 }

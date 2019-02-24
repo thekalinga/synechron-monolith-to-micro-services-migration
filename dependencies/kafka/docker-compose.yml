@@ -1,0 +1,15 @@
+version: '2'
+services:
+  kafka:
+    image: spotify/kafka
+    container_name: kafka
+    ports:
+      # host:guest
+      - 2181:2181
+      - 9092:9092
+    expose:
+      - 9092
+      - 2181
+    environment:
+      - ADVERTISED_HOST=localhost
+      - ADVERTISED_PORT=9092

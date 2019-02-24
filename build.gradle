@@ -1,5 +1,7 @@
-group 'com.acme'
-version '1.0.0-SNAPSHOT'
+allprojects {
+  group 'com.acme'
+  version '1.0.0-SNAPSHOT'
+}
 
 subprojects {
   buildscript {
@@ -56,9 +58,7 @@ subprojects {
 
     // maspstruct
     implementation "org.mapstruct:mapstruct:${project.'mapstruct.version'}"
-    implementation "org.mapstruct:mapstruct:${project.'mapstruct.version'}"
     annotationProcessor "org.mapstruct:mapstruct-processor:${project.'mapstruct.version'}"
-    testAnnotationProcessor "org.mapstruct:mapstruct-processor:${project.'mapstruct.version'}"
 
     compileOnly 'org.projectlombok:lombok'
     annotationProcessor 'org.projectlombok:lombok'

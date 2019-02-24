@@ -1,14 +1,60 @@
+server:
+  port: 18080
+
 spring:
   jpa:
     properties:
       hibernate.physical_naming_strategy: com.acme.micro.order.common.TblSufixSpringPhysicalNamingStrategyImpl
 
+  cloud:
+    stream:
+      bindings:
+        lease_confirmation_request:
+          producer:
+            headerMode: raw
+            partitionKeyExpression: payload.leaseId
+#            useNativeEncoding: true
+        lease_confirmation_response:
+          consumer:
+            headerMode: raw
+#            useNativeDecoding: true
+      kafka:
+        streams:
+          binder:
+            configuration:
+              default:
+                key.serde: org.apache.kafka.common.serialization.Serdes$IntegerSerde
+#                value.serde: org.apache.kafka.common.serialization.Serdes$ByteArraySerde
+              commit.interval.ms: 1000
+
+# TODO: Why are we using kafka streams config instead of kafka config?
+#        binder:
+#          configuration:
+#            default:
+#              key:
+#                serde: org.apache.kafka.common.serialization.Serdes.StringSerde
+#              value:
+#                serde: org.apache.kafka.common.serialization.Serdes.StringSerde
+#            commit:
+#              interval:
+#                ms: 1000
+
+  sleuth:
+    sampler:
+      probability: 1 # Sample every request
+    log:
+      slf4j:
+        enabled: false
+  zipkin:
+    sender:
+      type: WEB # KafkaStreamsStreamListenerSetupMethodOrchestrator.end it via http
+
 logging:
   level:
-    root: debug
-
-server:
-  port: 18080
+    root: warn
+    sql: debug
+    com:
+      acme: debug
 
 management:
   endpoint:
@@ -21,3 +67,5 @@ management:
         include:
           - '*'
     enabled-by-default: true
+
+hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 30000

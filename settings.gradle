@@ -1,6 +1,8 @@
 rootProject.name = 'synechron-monolith-to-micro-services-migration'
 
-include 'monolith'
-//include 'catalog-service'
-include 'inventory-service', 'order-service', 'hystrix-dashboard'
+//include 'monolith'
+include 'order-command-event-common'
 include 'service-registry', 'config-server', 'unsorted'
+include 'hystrix-dashboard', 'api-proxy'
+include 'spring-security-oauth-client', 'github-oauth-client'
+include 'inventory-service', 'order-service', 'catalog-service'

@@ -1,20 +1,18 @@
-package com.acme.micro.order.resource.dto;
+package com.acme.common.order.inventory;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
-
-import javax.validation.constraints.NotNull;
+import lombok.ToString;
 
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class OrderRequest {
-  @NotNull
-  private String productCode;
-  private int quantity;
+@ToString
+public class ConfirmLeaseCommand {
+  private int leaseId;
 }

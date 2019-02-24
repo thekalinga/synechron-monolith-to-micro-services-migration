@@ -42,9 +42,9 @@ spring:
   sleuth:
     sampler:
       probability: 1 # Sample every request
-    log:
-      slf4j:
-        enabled: false
+#    log:
+#      slf4j:
+#        enabled: false
   zipkin:
     sender:
       type: WEB # KafkaStreamsStreamListenerSetupMethodOrchestrator.end it via http

@@ -4,7 +4,7 @@
         <Property name="LOG_EXCEPTION_CONVERSION_WORD">%xwEx</Property>
         <Property name="LOG_LEVEL_PATTERN">%5p</Property>
         <Property name="LOG_DATEFORMAT_PATTERN">yyyy-MM-dd HH:mm:ss.SSS</Property>
-        <Property name="CONSOLE_LOG_PATTERN">%clr{%d{${LOG_DATEFORMAT_PATTERN}}}{faint} %clr{${LOG_LEVEL_PATTERN}} %clr{%pid}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
+        <Property name="CONSOLE_LOG_PATTERN">%clr{%d{${LOG_DATEFORMAT_PATTERN}}}{faint} %clr{${LOG_LEVEL_PATTERN}} [%X{traceId},%X{parentId},%X{spanId}] %clr{%pid}{magenta} %clr{---}{faint} %clr{[%15.15t]}{faint} %clr{%-40.40c{1.}}{cyan} %clr{:}{faint} %m%n${sys:LOG_EXCEPTION_CONVERSION_WORD}</Property>
     </Properties>
     <Appenders>
         <Console name="Console" target="SYSTEM_OUT">
@@ -19,7 +19,7 @@
         <Logger name="org.apache.tomcat.util.net.NioSelectorPool" level="warn"/>
         <Logger name="org.eclipse.jetty.util.component.AbstractLifeCycle" level="error"/>
         <Logger name="org.hibernate.validator.internal.util.Version" level="warn"/>
-        <Logger name="org.springframework.cloud.netflix" level="debug" additivity="false">
+        <Logger name="org.springframework.cloud.netflix" level="info" additivity="false">
             <AppenderRef ref="Console"/>
         </Logger>
         <Logger name="org.springframework.cloud.client" level="info" additivity="false">
@@ -36,7 +36,6 @@
         </Logger>
         <Logger name="org.springframework.cloud.sleuth" level="info" additivity="false">
             <AppenderRef ref="Console"/>
-            <AppenderRef ref="Async"/>
         </Logger>
         <Logger name="com.acme" level="debug" additivity="false">
             <AppenderRef ref="Console"/>

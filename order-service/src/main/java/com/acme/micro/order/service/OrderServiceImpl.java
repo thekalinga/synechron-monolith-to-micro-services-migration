@@ -91,6 +91,11 @@ public class OrderServiceImpl implements OrderService {
     }
   }
 
+  @Override
+  public void intentionallyErroringRemoteApiCall() {
+    inventoryProxyRestTemplateService.intentionallyErroringRemoteApiCall();
+  }
+
   @StreamListener
   void handleLeaseConfirmationUpdates(@Input(LEASE_CONFIRMATION_RESPONSE_DESTINATION_NAME) KStream<Integer, LeaseConfirmationStatusEvent> leaseConfirmationStatusStream) {
     leaseConfirmationStatusStream

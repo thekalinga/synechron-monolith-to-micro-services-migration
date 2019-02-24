@@ -5,12 +5,14 @@ import com.acme.common.order.inventory.ExpiringInventoryLeaseRestResponse;
 import com.acme.micro.inventory.resource.dto.IdContainer;
 import com.acme.micro.inventory.resource.dto.InventoryLeaseCancellationResponse;
 import com.acme.micro.inventory.service.InventoryService;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import javax.validation.Valid;
+import java.util.concurrent.ThreadLocalRandom;
 
 @RestController
 @RequestMapping
@@ -42,5 +44,11 @@ public class InventoryResource {
   InventoryLeaseCancellationResponse cancelLease(@RequestBody @Valid IdContainer id) {
     // TODO: Fix this
     return InventoryLeaseCancellationResponse.builder().cancelled(true).build();
+  }
+
+  @GetMapping("intentionallyErroringRemoteApiCall")
+  void intentionallyErroringRemoteApiCall() throws InterruptedException {
+    Thread.sleep(ThreadLocalRandom.current().nextInt(0, 2000));
+    throw new RuntimeException("Intentional error from inventory service");
   }
 }

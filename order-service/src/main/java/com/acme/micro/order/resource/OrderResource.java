@@ -48,4 +48,9 @@ public class OrderResource {
         .orElseGet(() -> ResponseEntity.badRequest().build());
   }
 
+  @GetMapping("/intentionalError")
+  void intentionallyErroringRemoteApiCall() {
+    service.intentionallyErroringRemoteApiCall();
+  }
+
 }

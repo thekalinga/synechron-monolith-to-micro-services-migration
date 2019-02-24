@@ -7,4 +7,8 @@ public class FallbackInventoryLeaseCancellationClient implements InventoryLeaseC
   public InventoryLeaseCancellationResponse cancel() {
     return InventoryLeaseCancellationResponse.builder().cancelled(false).build();
   }
+
+  @Override
+  public void intentionallyErroringRemoteApiCall() {
+  }
 }

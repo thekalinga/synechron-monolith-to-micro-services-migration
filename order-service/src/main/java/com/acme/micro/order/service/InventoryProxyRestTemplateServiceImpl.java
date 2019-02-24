@@ -50,4 +50,10 @@ public class InventoryProxyRestTemplateServiceImpl implements InventoryProxyRest
     log.debug("Will be requesting cancelling lease");
     return leaseCancellationClient.cancel().isCancelled();
   }
+
+  @Override
+  public void intentionallyErroringRemoteApiCall() {
+    log.debug("Attempting to request an API that throws an error intentionally");
+    leaseCancellationClient.intentionallyErroringRemoteApiCall();
+  }
 }

@@ -1,0 +1,14 @@
+<section style="width: 98vw; height: 98vh;" fxLayout="row wrap" fxLayoutAlign="center center">
+  <mat-card fxFlex="0 0 600px">
+    <h2>Enter login details</h2>
+    <form novalidate [formGroup]="fg" fxLayout="column nowrap" fxLayoutGap="8px">
+      <mat-form-field fxFlex="1 1 auto" floatPlaceholder="never">
+        <input matInput formControlName="username" type="text" required placeholder="Username">
+      </mat-form-field>
+      <mat-form-field fxFlex="1 1 auto" floatPlaceholder="never">
+        <input matInput formControlName="password" type="password" required placeholder="Password">
+      </mat-form-field>
+      <button mat-raised-button color="primary" type="submit" (click)="onLogin()" [disabled]="!fg.valid || this.loginInProgress">Login</button>
+    </form>
+  </mat-card>
+</section>

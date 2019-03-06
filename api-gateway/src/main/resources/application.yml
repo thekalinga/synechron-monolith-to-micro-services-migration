@@ -1,0 +1,106 @@
+hystrix:
+  command:
+    order-service:
+      execution:
+        isolation:
+          thread:
+            timeoutInMilliseconds: 2500
+      circuitBreaker:
+        requestVolumeThreshold: 2
+        errorThresholdPercentage: 50
+      metrics:
+        rollingStats:
+          timeInMilliseconds: 1000
+
+### TODO: Try some experiments later such as making parallel calls to upstream using reactive streams
+#proxy:
+#  auth:
+#    routes:
+#      order-service:
+#        id: order-service
+#        scheme: oauth2
+
+spring:
+  application:
+    name: api-gateway
+  security:
+    oauth2:
+      client:
+        provider:
+          keycloak:
+            issuerUri: http://idp:9999/auth/realms/demo
+        registration:
+          order-service-client:
+            provider: keycloak
+            clientName: Order Service Client
+            clientId: order-service-client
+            clientSecret: very-very-secret
+            scope:
+              - order:read
+              - order:write
+
+  cloud:
+    gateway:
+      routes:
+        - id: order-service
+          uri: lb://order-service
+          predicates:
+            - name: Path
+              args:
+                pattern: /order-service/**
+          filters:
+            - name: RewritePath
+              args:
+                regexp: /order-service/?(?<additionalPath>.*)
+                replacement: /$\{additionalPath}
+#            - Path=/order-service/**
+            - name: TokenRelay
+            - name: RemoveRequestHeader
+              args:
+                name: Cookie
+            - name: Hystrix
+              args:
+                name: order-service
+                fallbackUri: forward:/fallback
+      proxy:
+        sensitive:
+          - Cookie
+
+  sleuth:
+    sampler:
+      probability: 1
+#    log:
+#      slf4j:
+#        enabled: false
+  zipkin:
+    base-url: http://zipkin-server
+    sender:
+      type: WEB # Send it via http
+
+management:
+  endpoint:
+    hystrix:
+      stream:
+        enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - '*'
+
+logging:
+  level:
+    reactor:
+      netty: debug
+    com.netflix.discovery.shared.resolver.aws.ConfigClusterResolver: warn
+    org:
+      springframework:
+        security: debug
+        cloud:
+          gateway: debug
+
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 1
+  client:
+    eureka-service-url-poll-interval-seconds: 1

@@ -11,6 +11,7 @@ import com.acme.micro.inventory.domain.InventoryItemLease;
 import com.acme.micro.inventory.repository.InventoryItemLeaseRepository;
 import com.acme.micro.inventory.repository.InventoryItemRepository;
 import com.acme.micro.inventory.repository.LeaseStatus;
+import com.acme.micro.inventory.resource.contract.InventoryItemResponse;
 import lombok.extern.log4j.Log4j2;
 import org.apache.kafka.streams.KeyValue;
 import org.apache.kafka.streams.kstream.KStream;
@@ -19,11 +20,13 @@ import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.messaging.handler.annotation.SendTo;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.transaction.support.TransactionTemplate;
 
 import javax.persistence.EntityManager;
+
+import java.util.Optional;
+import java.util.stream.Stream;
 
 import static com.acme.common.order.inventory.LeaseAcquisitionStatus.acquired;
 import static com.acme.common.order.inventory.LeaseAcquisitionStatus.insufficient_quantity_available;
@@ -55,12 +58,24 @@ public class InventoryServiceImpl implements InventoryService {
   }
 
   @Override
+  public Stream<InventoryItemResponse> getAllInventoryItems() {
+    return repository.findAll().stream().map(item -> InventoryItemResponse.builder().id(item.getId()).productCode(item.getProductCode()).productName(
+        item.getProductName()).quantity(item.getQuantity()).build());
+  }
+
+  @Override
+  public Optional<InventoryItemResponse> findByProductCode(String productCode) {
+    return repository.findByProductCode(productCode).map(item -> InventoryItemResponse.builder().id(item.getId()).productCode(item.getProductCode()).productName(
+        item.getProductName()).quantity(item.getQuantity()).build());
+  }
+
+  @Override
   public ExpiringInventoryLeaseRestResponse acquireLease(ExpiringInventoryLeaseRestRequest request) {
     log.debug("Received acquire lease request for {}", request);
     return leaseRepository.findByOrderId(request.getOrderId())
         .map(lease -> { // incase if we failed to send
           return repository.findByProductCode(request.getProductCode())
-              .map(item -> toExpiringInventoryLeaseRestResponse(item, lease, acquired))
+              .map(item -> toExpiringInventoryLeaseRestResponse(item, lease, acquired)) // todo: dont send acquire, rather a derived status from the latest lease status
               .orElse(ExpiringInventoryLeaseRestResponse.builder().status(invalid_product_code).build());
         })
         .orElseGet(() -> {
@@ -116,6 +131,8 @@ public class InventoryServiceImpl implements InventoryService {
           lease.setStatus(status);
           leaseRepository.save(lease);
           log.debug("Reservation confirmed successfully");
+        } else {
+          // TODO: Send the latest status response
         }
         // since we are an idempotent consumer, we should tolerate atleas once deliverty semantics. Which is why we are not throwing any error incase if we receive an event for already confirmed leaseId
         LeaseConfirmationStatusEvent statusChangedEvent = LeaseConfirmationStatusEvent.builder().leaseId(command.getLeaseId()).confirmationStatus(status.toConfirmationStatus()).build();
@@ -126,19 +143,19 @@ public class InventoryServiceImpl implements InventoryService {
     });
   }
 
-  @Scheduled(fixedDelay = 60 * 1000)
-  void expiredLeaseReleaseTask() {
-    log.debug("Cleaup of expired lease started");
-    leaseRepository.findAllByValidTillBeforeAndStatus(now(), pending)
-        .forEach(itemLease -> {
-          log.debug("Expired reservation quantity is restored successfully for {}", itemLease);
-          itemLease.setStatus(expired);
-          itemLease.getItem().increaseQuantityBy(itemLease.getQuantity());
-          repository.save(itemLease.getItem());
-          leaseRepository.save(itemLease);
-        });
-    log.debug("Cleaup of expired leases finished");
-  }
+//  @Scheduled(fixedDelay = 60 * 1000)
+//  void expiredLeaseReleaseTask() {
+//    log.debug("Cleaup of expired lease started");
+//    leaseRepository.findAllByValidTillBeforeAndStatus(now(), pending)
+//        .forEach(itemLease -> {
+//          log.debug("Expired reservation quantity is restored successfully for {}", itemLease);
+//          itemLease.setStatus(expired);
+//          itemLease.getItem().increaseQuantityBy(itemLease.getQuantity());
+//          repository.save(itemLease.getItem());
+//          leaseRepository.save(itemLease);
+//        });
+//    log.debug("Cleaup of expired leases finished");
+//  }
 
   private static ExpiringInventoryLeaseRestResponse toExpiringInventoryLeaseRestResponse(InventoryItem item, InventoryItemLease lease, LeaseAcquisitionStatus status) {
     return ExpiringInventoryLeaseRestResponse.builder().leaseId(lease.getId()).leaseValidTill(lease.getValidTill()).productName(item.getProductName()).status(status).build();

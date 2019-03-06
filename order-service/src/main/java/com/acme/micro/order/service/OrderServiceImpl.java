@@ -2,9 +2,9 @@ package com.acme.micro.order.service;
 
 import com.acme.common.order.inventory.ConfirmLeaseCommand;
 import com.acme.common.order.inventory.ExpiringInventoryLeaseRestResponse;
-import com.acme.common.order.inventory.LeaseAcquisitionStatus;
 import com.acme.common.order.inventory.LeaseConfirmationStatus;
 import com.acme.common.order.inventory.LeaseConfirmationStatusEvent;
+import com.acme.micro.order.client.contract.InventoryItemClientResponse;
 import com.acme.micro.order.domain.Order;
 import com.acme.micro.order.integration.InventoryBinding;
 import com.acme.micro.order.mapper.OrderMapper;
@@ -18,7 +18,6 @@ import org.springframework.cloud.stream.annotation.Input;
 import org.springframework.cloud.stream.annotation.StreamListener;
 import org.springframework.messaging.Message;
 import org.springframework.messaging.support.MessageBuilder;
-import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -28,7 +27,6 @@ import java.util.stream.Collectors;
 
 import static com.acme.common.order.inventory.LeaseAcquisitionStatus.acquired;
 import static com.acme.common.order.inventory.OrderInventoryIntegrationConstants.LEASE_CONFIRMATION_RESPONSE_DESTINATION_NAME;
-import static com.acme.micro.order.domain.OrderStatus.cancelled_thru_compensation;
 import static com.acme.micro.order.domain.OrderStatus.confirmed;
 import static com.acme.micro.order.domain.OrderStatus.lease_acquired;
 import static com.acme.micro.order.domain.OrderStatus.lease_could_not_be_acquired;
@@ -43,13 +41,13 @@ import static java.time.LocalDateTime.now;
 public class OrderServiceImpl implements OrderService {
 
   private final OrderRepository orderRepository;
-  private final InventoryProxyRestTemplateService inventoryProxyRestTemplateService;
+  private final InventoryProxyService inventoryProxyService;
   private final OrderMapper mapper;
   private final InventoryBinding inventoryBinding;
 
-  public OrderServiceImpl(OrderRepository orderRepository, InventoryProxyRestTemplateService inventoryProxyRestTemplateService, OrderMapper mapper, InventoryBinding inventoryBinding) {
+  public OrderServiceImpl(OrderRepository orderRepository, InventoryProxyService inventoryProxyService, OrderMapper mapper, InventoryBinding inventoryBinding) {
     this.orderRepository = orderRepository;
-    this.inventoryProxyRestTemplateService = inventoryProxyRestTemplateService;
+    this.inventoryProxyService = inventoryProxyService;
     this.mapper = mapper;
     this.inventoryBinding = inventoryBinding;
   }
@@ -71,7 +69,9 @@ public class OrderServiceImpl implements OrderService {
     log.debug("Received order {}", request);
     Order order = Order.builder().productCode(request.getProductCode()).quantity(request.getQuantity()).status(will_attempt_lease_acquire).build();
     orderRepository.save(order);
-    ExpiringInventoryLeaseRestResponse leaseResponse = inventoryProxyRestTemplateService.getExpiringLeaseForOrder(order.getId(), request.getProductCode(), request.getQuantity());
+    ExpiringInventoryLeaseRestResponse leaseResponse = inventoryProxyService
+        .getExpiringLeaseForOrder(order.getId(), request.getProductCode(), request.getQuantity());
+    order.setLeaseId(leaseResponse.getLeaseId());
     order.setLeaseValidTill(leaseResponse.getLeaseValidTill());
     order.setStatus(leaseResponse.getStatus() == acquired ? lease_acquired : lease_could_not_be_acquired);
     if (order.getStatus() == lease_acquired) {
@@ -93,7 +93,17 @@ public class OrderServiceImpl implements OrderService {
 
   @Override
   public void intentionallyErroringRemoteApiCall() {
-    inventoryProxyRestTemplateService.intentionallyErroringRemoteApiCall();
+    inventoryProxyService.intentionallyErroringRemoteApiCall();
+  }
+
+  @Override
+  public List<InventoryItemClientResponse> getInventories() {
+    return inventoryProxyService.getInventories();
+  }
+
+  @Override
+  public InventoryItemClientResponse getInventoryByProductCode(String productCode) {
+    return inventoryProxyService.getInventoryByProductCode(productCode);
   }
 
   @StreamListener
@@ -121,28 +131,28 @@ public class OrderServiceImpl implements OrderService {
         });
   }
 
-  @Scheduled(fixedDelay = 60 * 1000L)
-  void reconciler() {
-    log.debug("Reconciler triggered");
-    orderRepository.findAllByStatusAndLeaseValidTillBefore(will_attempt_lease_acquire, now()).forEach(order -> {
-      try {
-        order.setStatus(cancelled_thru_compensation);
-        orderRepository.save(order);
-      } catch (Exception e) {
-        // intentionally ignoring with the assumption that db query is fine
-        log.debug("Error occurred but ignored", e);
-      }
-    });
-    orderRepository.findAllByStatusAndLeaseValidTillBefore(lease_acquired, now()).forEach(order -> {
-      try {
-        boolean leaseCancelled = inventoryProxyRestTemplateService.cancelLease();
-        order.setStatus(leaseCancelled ? cancelled_thru_compensation : confirmed);
-        orderRepository.save(order);
-      } catch (Exception e) {
-        // intentionally ignoring with the assumption that db query is fine
-        log.debug("Error occurred but ignored", e);
-      }
-    });
-  }
+//  @Scheduled(fixedDelay = 60 * 1000L)
+//  void reconciler() {
+//    log.debug("Reconciler triggered");
+//    orderRepository.findAllByStatusAndLeaseValidTillBefore(will_attempt_lease_acquire, now()).forEach(order -> {
+//      try {
+//        order.setStatus(cancelled_thru_compensation);
+//        orderRepository.save(order);
+//      } catch (Exception e) {
+//        // intentionally ignoring with the assumption that db query is fine
+//        log.debug("Error occurred but ignored", e);
+//      }
+//    });
+//    orderRepository.findAllByStatusAndLeaseValidTillBefore(lease_acquired, now()).forEach(order -> {
+//      try {
+//        boolean leaseCancelled = inventoryProxyService.cancelLease();
+//        order.setStatus(leaseCancelled ? cancelled_thru_compensation : confirmed);
+//        orderRepository.save(order);
+//      } catch (Exception e) {
+//        // intentionally ignoring with the assumption that db query is fine
+//        log.debug("Error occurred but ignored", e);
+//      }
+//    });
+//  }
 
 }

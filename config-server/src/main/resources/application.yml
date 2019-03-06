@@ -6,6 +6,7 @@ spring:
       server:
         git:
           uri: https://github.com/thekalinga/synechron-config-repo
+          clone-on-start: true
 
 server:
   port: 8888
@@ -16,5 +17,12 @@ eureka:
   client:
     eureka-service-url-poll-interval-seconds: 1
 
-# Refer to source of org.springframework.cloud.config.server.resource.ResourceController to know about the urls to access
+logging:
+  level:
+    org:
+      springframework:
+        cloud:
+          config:
+            server: debug
 
+# Refer to source of org.springframework.cloud.config.server.resource.ResourceController to know about the urls to access

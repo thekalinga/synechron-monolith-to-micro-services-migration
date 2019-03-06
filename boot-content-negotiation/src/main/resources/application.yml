@@ -1,0 +1,9 @@
+management:
+  endpoint:
+    beans:
+      enabled: true
+  endpoints:
+    web:
+      exposure:
+        include:
+          - beans

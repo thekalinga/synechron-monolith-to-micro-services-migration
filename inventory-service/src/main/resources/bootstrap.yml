@@ -1,8 +1,17 @@
 spring:
   application:
     name: inventory-service
+  cloud:
+    config:
+      discovery:
+        enabled: true
+        serviceId: configserver
+
 eureka:
   instance:
     lease-renewal-interval-in-seconds: 1
   client:
     eureka-service-url-poll-interval-seconds: 1
+# Default. Need not be mentioned
+#    service-url:
+#      defaultZone: http://localhost:8761/eureka

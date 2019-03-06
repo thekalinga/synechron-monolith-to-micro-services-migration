@@ -1,0 +1,31 @@
+buildscript {
+  dependencies {
+    classpath "org.springframework.boot:spring-boot-gradle-plugin:${project.'spring-boot.version'}"
+  }
+}
+
+apply plugin: "org.springframework.boot"
+apply from: 'docker.gradle'
+
+dependencies {
+  // zuul 1 is deprecated & uses blocking calls. There is no need for this
+//  implementation 'org.springframework.cloud:spring-cloud-starter-netflix-zuul'
+  implementation 'org.springframework.cloud:spring-cloud-starter-gateway'
+  implementation 'org.springframework.cloud:spring-cloud-gateway-webflux' // add support for ProxyExchange
+
+  // oauth2 security
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+  implementation 'org.springframework.security:spring-security-oauth2-jose'
+  implementation 'org.springframework.cloud:spring-cloud-starter-security' // gives us additional gateway filters
+
+  implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
+  implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
+  implementation 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon'
+  implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
+  implementation 'org.springframework.cloud:spring-cloud-starter-sleuth' // trace capture & propagantion
+  implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin' // trace aggregator over http
+
+  implementation 'org.springframework.boot:spring-boot-starter-actuator'
+
+  annotationProcessor 'org.springframework.boot:spring-boot-configuration-processor'
+}

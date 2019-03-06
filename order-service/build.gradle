@@ -15,7 +15,12 @@ dependencies {
   // https://stackoverflow.com/a/20258438/211794
   implementation 'org.glassfish.jersey.core:jersey-common:2.28'
 
-//  implementation 'org.springframework.cloud:spring-cloud-starter-config'
+  // oauth resource server + client for upstream calls
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-client'
+  implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
+  implementation 'org.springframework.security:spring-security-oauth2-jose'
+
+  implementation 'org.springframework.cloud:spring-cloud-starter-config'
   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon'
   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
   implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'
@@ -31,6 +36,7 @@ dependencies {
   implementation 'org.springframework.cloud:spring-cloud-sleuth-zipkin'
 
   implementation 'org.springframework.boot:spring-boot-starter-web'
+  implementation 'org.springframework.boot:spring-boot-starter-webflux' // for webclient, as oauth2 only works with webclient (with resttemplate we have tio explicitly set Bearer headers explicitly)
   implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
   runtimeOnly 'com.h2database:h2'
 }

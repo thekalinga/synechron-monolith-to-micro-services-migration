@@ -1,0 +1,11 @@
+spring:
+  application:
+    name: turbine-server
+turbine:
+  aggregator:
+    cluster-config:
+      - api-gateway
+      - order-service
+      - inventory-service
+server:
+  port: 8099

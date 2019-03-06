@@ -1,0 +1,37 @@
+spring:
+  security:
+    oauth2:
+      client:
+        registration:
+          github-client:
+            provider: github
+            clientName: github-client
+            clientId: 09ead846de0a6540a0da
+            clientSecret: 6fe8360d7b065c42088c1929d54eea34e3589acd
+            authorizationGrantType: authorization_code
+            clientAuthenticationMethod: basic
+            redirectUri: '{baseUrl}/login/oauth2/code/{registrationId}'
+          keycloak:
+            provider: keycloak
+            clientName: Keycloak
+            clientId: spring-security
+            clientSecret: very-very-secret
+        provider:
+          keycloak:
+            issuerUri: http://idp:9999/auth/realms/demo
+logging:
+  level:
+    web: debug
+    io:
+      netty:
+        handler: debug
+    reactor:
+      ipc:
+        netty: DEBUG
+    org:
+      springframework:
+        web:
+          reactive:
+            function:
+              client: debug
+          client: debug

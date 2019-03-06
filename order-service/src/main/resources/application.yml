@@ -2,6 +2,29 @@ server:
   port: 18080
 
 spring:
+  application:
+    name: order-service
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://idp:9999/auth/realms/demo
+      client:
+        provider:
+          keycloak:
+            issuerUri: http://idp:9999/auth/realms/demo
+        registration:
+          inventory-service-client:
+            provider: keycloak
+            clientName: Order Service
+            clientId: inventory-service-client
+            clientSecret: super-duper-secret
+            authorizationGrantType: client_credentials
+            scope:
+              - inventory:read
+              - inventory:write
+
   jpa:
     properties:
       hibernate.physical_naming_strategy: com.acme.micro.order.common.TblSufixSpringPhysicalNamingStrategyImpl
@@ -10,14 +33,16 @@ spring:
     stream:
       bindings:
         lease_confirmation_request:
+          contentType: application/json
           producer:
             headerMode: raw
             partitionKeyExpression: payload.leaseId
-#            useNativeEncoding: true
         lease_confirmation_response:
+          contentType: application/json
           consumer:
             headerMode: raw
-#            useNativeDecoding: true
+          group: ${spring.application.name}
+
       kafka:
         streams:
           binder:
@@ -41,19 +66,30 @@ spring:
 
   sleuth:
     sampler:
-      probability: 1 # Sample every request
+      probability: 1 # Sample every request, in practice may .1/less
 #    log:
 #      slf4j:
 #        enabled: false
   zipkin:
+    base-url: http://zipkin-server
     sender:
-      type: WEB # KafkaStreamsStreamListenerSetupMethodOrchestrator.end it via http
+      type: WEB # Send it via http
 
 logging:
   level:
     root: warn
     sql: debug
+    reactor:
+      netty: debug
+    org:
+      springframework:
+        cloud:
+          config:
+            client: debug
+        security: debug
     com:
+      netflix:
+        hystrix: debug
       acme: debug
 
 management:
@@ -68,4 +104,20 @@ management:
           - '*'
     enabled-by-default: true
 
+# Will then trigger
+feign:
+  hystrix:
+    enabled: true
+
 hystrix.command.default.execution.isolation.thread.timeoutInMilliseconds: 30000
+
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 1
+  client:
+    eureka-service-url-poll-interval-seconds: 1
+    service-url:
+      defaultZone: http://localhost:8761/eureka
+
+tunable:
+  sleepTimeInMillis: 1000

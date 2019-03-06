@@ -1,0 +1,47 @@
+<section style="width: 98vw; height: 98vh;" fxLayout="row wrap" fxLayoutAlign="center start">
+  <mat-card fxFlex="0 0 600px">
+    <mat-card-title-group>
+      <mat-card-title>Todos</mat-card-title>
+    </mat-card-title-group>
+    <section fxLayout="column nowrap">
+      <div fxLayout="row nowrap" fxLayoutAlign="center start" fxFlex="1 1 auto">
+        <div *ngIf="fetchInProgress; else fetchCompleteContainer">
+          <mat-progress-spinner mode="indeterminate" color="primary" diameter="48"></mat-progress-spinner>
+        </div>
+        <ng-template #fetchCompleteContainer>
+          <div *ngIf="fetchSuccess; else fetchFailedContainer" fxLayout="column nowrap" fxLayoutAlign="start center" fxLayoutAlign="start stretch"
+            fxFlex="1 1 auto">
+            <div fxLayout="column nowrap" fxLayoutAlign="start stretch">
+              <form novalidate [formGroup]="fg" fxLayout="row nowrap" fxLayoutGap="12px" fxFlex="1 1 auto" (ngSubmit)="onAddTodo()">
+                <mat-form-field floatLabel="never" fxFlex="1 1 auto">
+                  <input #newTodo matInput formControlName="newTodo" type="text" placeholder="Enter new todo name and press enter" autocomplete="off">
+                  <mat-error *ngIf="addFailed">Unable to add todo. Please check whether server is up or not</mat-error>
+                </mat-form-field>
+                <div fxLayout="row nowrap" fxLayoutAlign="start center">
+                  <button mat-raised-button color="primary" type="submit" [disabled]="disableAdd">Add</button>
+                </div>
+              </form>
+            </div>
+            <div *ngIf="todos && todos.length !== 0; else noTasksAvailable" fxLayout="column nowrap" fxLayoutAlign="start stretch" fxFlex="1 1 auto">
+              <ng-template ngFor let-todo let-last="last" let-i="index" [ngForOf]="todos" [ngForTrackBy]="todoIdentity">
+                <app-todo [todo]="todo" (deleted)="onTodoDeleteComplete(i)"></app-todo>
+                <p class="divider" *ngIf="!last"></p>
+              </ng-template>
+            </div>
+            <ng-template #noTasksAvailable>
+              <p fxFlex="1 1 auto">
+                No tasks available
+              </p>
+            </ng-template>
+          </div>
+          <ng-template #fetchFailedContainer>
+            <div fxLayout="column nowrap" fxLayoutAlign="center start" fxFlex="1 1 auto">
+              <p>Failed to load. Please retry</p>
+              <button mat-raised-button (click)="onRetry()" color="accent">Retry</button>
+            </div>
+          </ng-template>
+        </ng-template>
+      </div>
+    </section>
+  </mat-card>
+</section>

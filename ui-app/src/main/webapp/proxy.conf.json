@@ -1,0 +1,14 @@
+{
+  "/api/todos/*": {
+    "target": "http://localhost:8080",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
+  },
+  "/oauth/*": {
+    "target": "http://localhost:9191",
+    "secure": false,
+    "logLevel": "debug",
+    "changeOrigin": true
+  }
+}

@@ -1,6 +1,6 @@
 package com.acme.micro.order.service;
 
-import com.acme.micro.order.mapper.OrderMapper;
+import com.acme.micro.order.client.contract.InventoryItemClientResponse;
 import com.acme.micro.order.resource.contract.OrderRequest;
 import com.acme.micro.order.resource.contract.OrderResponse;
 
@@ -12,4 +12,6 @@ public interface OrderService {
   Optional<OrderResponse> getOrderById(int id);
   Optional<OrderResponse> placeOrder(OrderRequest request);
   void intentionallyErroringRemoteApiCall();
+  List<InventoryItemClientResponse> getInventories();
+  InventoryItemClientResponse getInventoryByProductCode(String productCode);
 }

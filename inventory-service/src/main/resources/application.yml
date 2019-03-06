@@ -2,12 +2,20 @@ server:
   port: 28080
 
 spring:
+  application:
+    name: inventory-service
   jpa:
     properties:
       hibernate:
         show_sql: true
         format_sql: true
         physical_naming_strategy: com.acme.micro.inventory.common.TblSufixSpringPhysicalNamingStrategyImpl
+
+  security:
+    oauth2:
+      resourceserver:
+        jwt:
+          issuer-uri: http://idp:9999/auth/realms/demo
 
   # kafka + stream configuration
   cloud:
@@ -24,6 +32,7 @@ spring:
             headerMode: raw
             partitionKeyExpression: payload.leaseId
 #            useNativeEncoding: true
+
       kafka:
         streams:
           binder:
@@ -37,17 +46,30 @@ spring:
   sleuth:
     sampler:
       probability: 1 # Sample every request
-    log:
-      slf4j:
-        enabled: false
+#    log:
+#      slf4j:
+#        enabled: false
   # Zipkin exporter
   zipkin:
+    base-url: http://zipkin-server
     sender:
-      type: WEB # KafkaStreamsStreamListenerSetupMethodOrchestrator.end it via http
+      type: WEB # Send it via http
 
 logging:
   level:
     root: warn
     sql: debug
+    org:
+      springframework:
+        security: debug
+#    org:
+#      springframework:
+#        security: debug
     com:
       acme: debug
+
+eureka:
+  instance:
+    lease-renewal-interval-in-seconds: 1
+  client:
+    eureka-service-url-poll-interval-seconds: 1

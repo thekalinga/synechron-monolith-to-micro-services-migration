@@ -1,0 +1,9 @@
+<div fxLayout="row nowrap" fxLayoutAlign="start center" fxLayoutGap="12px" fxFlex="1 1 auto" style.padding="12px">
+  <mat-checkbox (change)="onCompleteToggle()" [(ngModel)]="todo.completed" color="primary" [matTooltip]="checkboxTooltip" [disabled]="updateInProgress"
+    [style.visibility]="hoverInProgress ? 'visible' : 'hidden'"></mat-checkbox>
+  <p fxFlex="1 1 auto" [style.textDecoration]="todo.completed ? 'line-through' : 'none'">{{todo.name}}</p>
+  <button mat-icon-button (click)="onTodoDelete(); $event.stopPropagation()" matTooltip="Click to delete" [disabled]="updateInProgress"
+    [style.visibility]="hoverInProgress ? 'visible' : 'hidden'">
+    <mat-icon class="mat-48" color="accent">delete</mat-icon>
+  </button>
+</div>

@@ -32,6 +32,7 @@ public class CachingOAuth2AuthorizedClientServiceImpl
   @Override
   public Optional<OAuth2AuthorizedClient> findAuthenticatedClientByClientCredentials(
       String clientRegistrationId) {
+    // TODO: Refresh token if already expired. Refer to `ServerOAuth2AuthorizedClientExchangeFilterFunction` on how to do this
       return clientIdToAuthorizedClient.computeIfAbsent(clientRegistrationId, clientId -> {
           ClientRegistration clientRegistration =
               this.clientRegistrationRepository.findByRegistrationId(clientRegistrationId);

@@ -12,6 +12,6 @@ eureka:
     lease-renewal-interval-in-seconds: 1
   client:
     eureka-service-url-poll-interval-seconds: 1
-# Default. Need not be mentioned
+# Default. Need not be declared
 #    service-url:
 #      defaultZone: http://localhost:8761/eureka

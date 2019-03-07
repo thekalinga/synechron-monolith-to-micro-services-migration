@@ -84,11 +84,6 @@ public class InventoryProxyServiceImpl implements InventoryProxyService {
   @Override
   @HystrixCommand
   public List<InventoryItemClientResponse> getInventories() {
-    // Because of this bug, https://github.com/reactor/reactor-netty/issues/558, trace ids are not propagated when using reactor-netty client
-    // This issue is mentioned here. https://github.com/spring-cloud/spring-cloud-sleuth/issues/1141
-    // A new pull request available for adding tracing https://github.com/reactor/reactor-netty/pull/622
-    // Because of https://github.com/spring-cloud/spring-cloud-sleuth/issues/1131, trace id is not visible in netty logs
-    // There is a feature request for it https://github.com/reactor/reactor-netty/issues/539
     return webClientBuilder.build().get().uri("http://inventory-service")
         .attributes(oauth2AuthorizedClient(getCurrentOAuth2AuthorizedClient()))
         .retrieve()

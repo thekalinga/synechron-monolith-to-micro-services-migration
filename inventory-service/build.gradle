@@ -9,6 +9,7 @@ apply plugin: "org.springframework.boot"
 dependencies {
   implementation project(':order-command-event-common')
 
+// NOTE: Uncomment when integrating with config server
 //  implementation 'org.springframework.cloud:spring-cloud-starter-config'
   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-eureka-client'
   // Rfer to this, Not sure why we need this. Raise an issue with spring guys that the server startup fails when eurek client/ribbo+kafka streams is used

@@ -20,7 +20,8 @@ dependencies {
   implementation 'org.springframework.boot:spring-boot-starter-oauth2-resource-server'
   implementation 'org.springframework.security:spring-security-oauth2-jose'
 
-  implementation 'org.springframework.cloud:spring-cloud-starter-config'
+  // NOTE: Uncomment when integrating with config server
+//  implementation 'org.springframework.cloud:spring-cloud-starter-config'
   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-ribbon'
   implementation 'org.springframework.cloud:spring-cloud-starter-netflix-hystrix'
   implementation 'org.springframework.cloud:spring-cloud-starter-openfeign'

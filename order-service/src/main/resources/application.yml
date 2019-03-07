@@ -9,7 +9,7 @@ spring:
     oauth2:
       resourceserver:
         jwt:
-          issuer-uri: http://idp:9999/auth/realms/demo
+          jwk-set-uri: http://idp:9999/auth/realms/demo/protocol/openid-connect/certs
       client:
         provider:
           keycloak:
